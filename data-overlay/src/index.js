@@ -1,20 +1,30 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import mapboxgl from 'mapbox-gl'
-import data from './data.json'
+import * as d3 from 'd3';
+//import data from './data.json'
+import data from './china.json'
+//import axios from 'axios';
+import hujia from './hujia.json'
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
 
+var color = d3.scaleQuantize()
+.range(["rgb(237,248,233)", "rgb(186,228,179)",
+"rgb(116,196,118)", "rgb(49,163,84)", "rgb(0,109,44)"]);
+
+
+
 const options = [{
-  name: 'Population',
-  description: 'Estimated total population',
-  property: 'pop_est',
+  name: 'Count',
+  description: 'Estimated total user count',
+  property: 'count',
   stops: [
     [0, '#f8d5cc'],
-    [1000000, '#f4bfb6'],
-    [5000000, '#f1a8a5'],
-    [10000000, '#ee8f9a'],
-    [50000000, '#ec739b'],
+    [10, '#f4bfb6'],
+    [50, '#f1a8a5'],
+    [100, '#ee8f9a'],
+    [500, '#ec739b'],
     [100000000, '#dd5ca8'],
     [250000000, '#c44cc0'],
     [500000000, '#9f43d7'],
@@ -38,25 +48,54 @@ const options = [{
 }]
 
 class Application extends React.Component {
-  map;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
+state = {
       active: options[0]
-    };
-  }
+  };
 
+
+
+  
   componentDidUpdate() {
     this.setFill();
   }
 
   componentDidMount() {
+
+  //   axios.get('http://data-hujia.cctalk.com/hujia/api/eventrecord/76/',{headers:{Cookie: 'sessionid=dcw7qke40ia9sv6xjiwiteo96gza53q4'}})
+  //   .then(res => {
+  //       this.setState({ items: res.data });  
+  //  });
+
+  //console.log(data.features);
+  
+  var min =999, max =0;
+  for(var province of data.features) {
+
+    var count = hujia.filter(function(o){
+      return o.province == province.properties.name
+    }).length 
+    if (count < min){
+      min = count
+    }
+    else if (count > max){
+      max = count
+    }
+    province.properties['count'] = count 
+ 
+}
+  console.log(data.features)
+
+  color.domain(min,max)
+  
+
+  
+
     this.map = new mapboxgl.Map({
-      container: this.mapContainer,
+      container: 'map', // just an ID
       style: 'mapbox://styles/mapbox/streets-v9',
-      center: [5, 34],
-      zoom: 1.5
+      center: [107, 33],
+      zoom: 3.4
     });
 
     this.map.on('load', () => {
@@ -71,6 +110,7 @@ class Application extends React.Component {
         source: 'countries'
       }, 'country-label-lg'); // ID metches `mapbox/streets-v9`
 
+
       this.setFill();
     });
   }
@@ -79,8 +119,11 @@ class Application extends React.Component {
     const { property, stops } = this.state.active;
     this.map.setPaintProperty('countries', 'fill-color', {
       property,
-      stops
-    });    
+      stops,
+      
+    });
+
+    this.map.setPaintProperty('countries', 'fill-opacity',0.5);   
   }
 
   render() {
@@ -105,7 +148,7 @@ class Application extends React.Component {
 
     return (
       <div>
-        <div ref={el => this.mapContainer = el} className="absolute top right left bottom" />
+        <div id='map' className="absolute top right left bottom" />
         <div className="toggle-group absolute top left ml12 mt12 border border--2 border--white bg-white shadow-darken10 z1">
           {options.map(renderOptions)}
         </div>

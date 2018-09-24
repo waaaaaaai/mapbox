@@ -8,6 +8,8 @@
     "react-scripts": "^1.0.10"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "d3": "^5.7.0",
     "mapbox-gl": "^0.39.1",
     "react": "^15.5.0",
     "react-dom": "^15.5.0"
