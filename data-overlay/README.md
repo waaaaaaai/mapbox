@@ -3,7 +3,7 @@ Data overlay example
 
 Add a data overlay to a map via React and use controls to visualize it differently.
 
-![Demo gif](https://i.imgur.com/FiqNRfZ.gif)
+![Demo jpeg](https://imgur.com/a/3bHpYls)
 
 ### Run it
 
